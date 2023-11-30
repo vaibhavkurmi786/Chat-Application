@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    html,body{
+      width: 100%;
+      height: 100%;
+    }
+
+    .main{
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .main .converarea{
+      width: 60vw;
+      height: 70vh;
+      /* background-color: brown; */
+    }
+    .messages{
+      height: calc(100% - 100px);
+      width: 100%;
+      background-color: rgb(152, 255, 152);
+      margin-bottom: 20px;
+      padding: 1vw;
+      border-radius: 2vh;
+      overflow-Y: auto;
+    }
+    .messages::-webkit-scrollbar{
+      width: 4px;
+    }.messages::-webkit-scrollbar-thumb{
+      background-color: lightseagreen;
+      border-radius: 2vh;
+    }
+    .inputs{
+      height: 50px;
+      display: flex;   
+    }
+    .inputs input{
+      width: 100%;
+      height: 50px;
+      border-radius: 2vh;
+      /* outline: none; */
+      border: 0.1px solid black;
+    }
+    .inputs button{
+      padding: 1vw 2vw;
+      border-radius: 2vh;
+      font-size: 1vw;
+    }
+    .inputs button:hover{
+      cursor: pointer;
+    }
+    .messages .msg{
+      background-color: #fff;
+      width: fit-content;
+      padding: 5px 10px;
+      border-radius: 10px;
+      margin-bottom: 2vh;
+    }
+    .usrename{
+      font-size: 14px;
+      opacity: .7;
+    }
+    .data{
+      font-size: 25px;
+
+    }
+
+    .outgoingmsg{
+      margin-left: auto;
+      margin-bottom: 2vh;
+    }
+
+    .joinroom{
+      position: absolute;
+      top: 10%;
+      left: 5%;
+      font-size: 1.5vw;
+      padding: 1vw;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="main">
+<button class="joinroom" onclick="joinRoom()">join room</button>
+    <div class="converarea">
+      <div class="messages">  
+       
+      </div>
+    <div class="inputs">
+      <input type="text" placeholder="enter message">
+      <button onclick="sendmessage()">send</button>
+    </div>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+      var socket = io();
+  let roomName = null
+    const usserName = prompt("Enter your name")
+    console.log(usserName);
+
+function joinRoom(){
+  roomName = prompt("Enter your message")
+  socket.emit(`joinRoom`, roomName)
+}
+
+function incomingmsg(message){
+  document.querySelector(".messages").innerHTML += `
+      <div class="msg incomingmsg">
+          <div class="usrename">${message.usserName}</div>
+          <div class="data">${message.msg}</div>
+        </div>  `
+}
+
+function outgoingmsg(message){
+  document.querySelector(".messages").innerHTML += `
+  <div class="msg outgoingmsg">
+          <div class="usrename">${message.usserName}</div>
+          <div class="data">${message.msg}</div>
+        </div>`
+}
+
+function sendmessage(){
+  const msg = document.querySelector("input").value
+  const messagepacket = {
+    usserName:usserName,
+    msg:msg,
+    roomName:roomName
+  }
+  document.querySelector("input").value = ``
+  outgoingmsg(messagepacket)
+  socket.emit('sony',messagepacket) 
+}
+socket.on('max', (msg)=>{
+  console.log(msg);
+  incomingmsg(msg)
+})
+
+  </script>
+
+</body>
+</html>
